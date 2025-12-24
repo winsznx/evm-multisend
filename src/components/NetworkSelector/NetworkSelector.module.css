@@ -1,0 +1,87 @@
+.container {
+    margin-bottom: var(--spacing-6);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-4);
+}
+
+.title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+}
+
+.networkGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-2);
+}
+
+.networkBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-1);
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    text-align: left;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background-color: var(--color-white);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.networkBtn:hover:not(:disabled) {
+    border-color: var(--color-gray-400);
+    background-color: var(--color-surface);
+}
+
+.networkBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.networkBtn.active {
+    border-color: var(--color-black);
+    background-color: var(--color-surface);
+}
+
+.networkName {
+    font-weight: var(--font-weight-medium);
+}
+
+.activeBadge {
+    font-size: var(--font-size-xs);
+    color: var(--color-success);
+    font-weight: var(--font-weight-normal);
+}
+
+.hint {
+    margin-top: var(--spacing-3);
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-3);
+    }
+
+    .networkGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .networkGrid {
+        grid-template-columns: 1fr;
+    }
+}
