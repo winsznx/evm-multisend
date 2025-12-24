@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EVM MultiSend
+
+## Project Overview
+
+EVM MultiSend is a sophisticated decentralized application designed to streamline the process of sending assets to multiple recipients in a single transaction. By batching transfers, users can significantly reduce gas costs and administrative time compared to executing individual transactions. The application supports both Native Tokens (such as ETH, BNB, MATIC) and ERC20 tokens across a wide range of Ethereum Virtual Machine networks, as well as providing architectural support for Bitcoin transactions.
+
+The interface is built with a focus on usability, reliability, and visual clarity, adhering to a strict professional design system. It integrates seamlessly with modern Web3 wallets using the Reown AppKit, ensuring a secure and familiar connection process for users.
+
+## Technical Architecture
+
+The project is architected as a modern full stack decentralized application, separating concerns between the reactive frontend and the on chain logic.
+
+### Frontend Application
+The user interface is developed using Next.js 14, leveraging TypeScript for type safety and code reliability. The state management and blockchain interactions are powered by Wagmi v2 and Viem. The Reown AppKit is utilized for wallet connectivity, providing support for hundreds of wallets via the WalletConnect protocol. The application is fully responsive and optimized for performance, utilizing server side rendering where appropriate.
+
+### Smart Contracts
+For EVM networks, the logic is encapsulated in the MultiSend.sol smart contract. This contract is written in Solidity 0.8.24 and utilizes industry standard libraries from OpenZeppelin, including SafeERC20 for secure token transfers and ReentrancyGuard for protection against reentrancy attacks. The contract is designed to be gas efficient and secure, enforcing batch limits and proper input validation.
+
+For the Bitcoin network, the system follows a different architectural pattern due to the nature of the UTXO model. Instead of an on chain smart contract, the application is designed to construct Partially Signed Bitcoin Transactions (PSBT) client side. This allows for native multi input, multi output transactions without the need for a deployed contract.
+
+## Features
+
+### Multi Network Support
+The application supports a comprehensive list of mainnet and testnet networks. Users can instantly toggle between production environments (Ethereum, Arbitrum, Optimism, Polymer, Base, BSC, Avalanche, Gnosis, Celo, Bitcoin) and their respective testnets (Sepolia, Amoy, Fuji, Alfajores).
+
+### Asset Management
+Users have complete flexibility in selecting which assets to distribute. The system automatically detects the native currency of the connected chain. Additionally, users can import any ERC20 token by simply pasting its contract address. The application verifies the contract and retrieves metadata such as the token name, symbol, and decimals automatically.
+
+### Recipient Management
+The interface provides robust tools for managing recipient lists. Users can add recipients manually one by one, specifying unique amounts for each. For larger distributions, the Bulk Import feature allows users to paste data from external sources (like CSV files or spreadsheets). The system parses this input, validates addresses and amounts, and reports any errors before processing.
+
+### Transaction Safety
+Before any transaction is submitted, the application performs a series of checks. It validates the user's balance against the total required amount, checks for duplicate addresses, and ensures all inputs are strictly formatted. The user is presented with a clear summary of the total cost and recipient count, preventing accidental transfers.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+To run this project locally, you must have Node.js (version 18 or higher) and npm installed on your machine. You will also need a valid Project ID from Reown (formerly WalletConnect) to enable wallet connections.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Clone the repository to your local machine.
+2. Navigate to the project directory in your terminal.
+3. Install the dependencies by running the command `npm install`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a file named `.env.local` in the root directory of the project. You must define the environment variable `NEXT_PUBLIC_PROJECT_ID` with your unique identifier from the Reown Dashboard. You can use the provided `.env.example` file as a reference.
 
-## Learn More
+### Running the Application
 
-To learn more about Next.js, take a look at the following resources:
+Start the development server by executing `npm run dev`. The application will be accessible at `http://localhost:3000` in your web browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Frontend Deployment
+The application is optimized for deployment on Vercel. Connect your GitHub repository to Vercel, and the platform will automatically detect the Next.js framework. Ensure you add the `NEXT_PUBLIC_PROJECT_ID` environment variable in the Vercel project settings before deployment.
 
-## Deploy on Vercel
+### Smart Contract Deployment
+The repository includes a Hardhat configuration for deploying the MultiSend smart contract. To deploy to a live network, configure your network settings and private key in `hardhat.config.js` (ensure this file is never shared publicly), and run the deployment script provided in the documentation or Hardhat guide.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Security
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Security is a primary focus of this application. The smart contracts have been implemented following best practices and include safeguards against common vulnerabilities. The frontend sanitizes all inputs and relies on established libraries for cryptographic operations. Access to the `.env` file containing sensitive keys is restricted via `.gitignore`.
