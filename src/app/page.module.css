@@ -1,0 +1,84 @@
+.page {
+    min-height: calc(100vh - 72px);
+    padding: var(--spacing-8) 0;
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding-left: var(--container-padding);
+    padding-right: var(--container-padding);
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: var(--spacing-10);
+}
+
+.title {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-3);
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--color-muted);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.connectCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-4);
+    max-width: 400px;
+    margin: 0 auto;
+    padding: var(--spacing-10);
+    text-align: center;
+    background-color: var(--color-white);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.connectIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-full);
+    color: var(--color-muted);
+}
+
+.connectTitle {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    margin: 0;
+}
+
+.connectDescription {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    margin: 0 0 var(--spacing-4);
+}
+
+@media (max-width: 768px) {
+    .page {
+        padding-top: var(--spacing-6);
+        padding-bottom: var(--spacing-6);
+    }
+
+    .hero {
+        margin-bottom: var(--spacing-6);
+    }
+
+    .title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .subtitle {
+        font-size: var(--font-size-base);
+    }
+}
