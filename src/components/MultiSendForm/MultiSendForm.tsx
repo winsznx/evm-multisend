@@ -111,7 +111,7 @@ export default function MultiSendForm() {
             const decimals = selectedToken.decimals;
             const amounts = validRecipients.map(r => parseUnits(r.amount, decimals));
 
-            const totalAmountWei = amounts.reduce((a, b) => a + b, 0n);
+            const totalAmountWei = amounts.reduce((a, b) => a + b, BigInt(0));
 
             if (selectedToken.isNative) {
                 // Send Native Token
@@ -134,7 +134,7 @@ export default function MultiSendForm() {
                     abi: ERC20_ABI,
                     functionName: 'allowance',
                     args: [address as `0x${string}`, contractAddress],
-                });
+                }) as bigint;
 
                 if (allowance < totalAmountWei) {
                     setTxStatus({ status: 'preparing' }); // Logic could allow a specific "approving" state
