@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import { Upload } from 'lucide-react';
 import { useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
-import { useSendTransaction, useWriteContract } from 'wagmi';
-import { parseEther, parseUnits } from 'viem';
+import { useSendTransaction, useWriteContract, usePublicClient } from 'wagmi';
+import { parseEther, parseUnits, formatUnits } from 'viem';
 import {
     NetworkSelector,
     TokenSelector,
@@ -12,8 +12,10 @@ import {
     BulkImportModal,
     TransactionSummary,
 } from '@/components';
+import { ERC20_ABI } from '@/types';
 import type { Recipient, Token, TransactionStatus } from '@/types';
 import { createRecipient, validateRecipient, findDuplicateAddresses } from '@/utils';
+import { MULTISEND_ADDRESSES, MULTISEND_ABI } from '@/config/contracts';
 import styles from './MultiSendForm.module.css';
 
 export default function MultiSendForm() {
@@ -24,9 +26,9 @@ export default function MultiSendForm() {
 
     const { isConnected, address } = useAppKitAccount();
     const { chainId } = useAppKitNetwork();
+    const publicClient = usePublicClient();
 
     // Transaction hooks
-    const { sendTransactionAsync } = useSendTransaction();
     const { writeContractAsync } = useWriteContract();
 
     // Recipient management
@@ -66,7 +68,20 @@ export default function MultiSendForm() {
         if (String(chainId).includes('bitcoin') || String(chainId).startsWith('bip122')) {
             setTxStatus({
                 status: 'error',
-                error: 'Bitcoin sending logic is architected but not fully implemented in this UI. See AUDIT_REPORT.md.',
+                error: 'Bitcoin sending is architected but not implemented in this UI demo.',
+            });
+            return;
+        }
+
+        // Check if contract exists for this chain
+        const contractAddress = MULTISEND_ADDRESSES[Number(chainId)];
+        if (!contractAddress || contractAddress === '0x0000000000000000000000000000000000000000') {
+            // Fallback for demo on non-deployed chains: Just show error
+            // Or allow native simple send if you want (previous behavior)
+            // But goal is to verify contract.
+            setTxStatus({
+                status: 'error',
+                error: 'MultiSend contract not deployed or configured for this network.',
             });
             return;
         }
@@ -90,31 +105,74 @@ export default function MultiSendForm() {
         setTxStatus({ status: 'preparing' });
 
         try {
+            // Prepare data
+            const recipientAddresses = validRecipients.map(r => r.address as `0x${string}`);
+            // Calculate total and individual amounts in appropriate units
+            const decimals = selectedToken.decimals;
+            const amounts = validRecipients.map(r => parseUnits(r.amount, decimals));
+
+            const totalAmountWei = amounts.reduce((a, b) => a + b, 0n);
+
             if (selectedToken.isNative) {
-                // Send native token (ETH, etc.) - batch transactions
-                // For simplicity, we'll send individually (in production, use a multisend contract)
-                for (const recipient of validRecipients) {
-                    setTxStatus({ status: 'pending' });
-                    const hash = await sendTransactionAsync({
-                        to: recipient.address as `0x${string}`,
-                        value: parseEther(recipient.amount),
-                    });
-                    setTxStatus({ status: 'success', hash });
-                }
-            } else {
-                // For ERC20 tokens, would need approval + multisend contract
-                // This is a simplified version
-                setTxStatus({
-                    status: 'error',
-                    error: 'ERC20 batch transfers require a MultiSend contract. Native token only for demo.',
+                // Send Native Token
+                setTxStatus({ status: 'pending' });
+                const hash = await writeContractAsync({
+                    address: contractAddress,
+                    abi: MULTISEND_ABI,
+                    functionName: 'multiSendNative',
+                    args: [recipientAddresses, amounts],
+                    value: totalAmountWei,
                 });
-                return;
+                setTxStatus({ status: 'success', hash });
+            } else {
+                // Send ERC20 Token
+                if (!publicClient) throw new Error('Network client not ready');
+
+                // 1. Check Allowance
+                const allowance = await publicClient.readContract({
+                    address: selectedToken.address as `0x${string}`,
+                    abi: ERC20_ABI,
+                    functionName: 'allowance',
+                    args: [address as `0x${string}`, contractAddress],
+                });
+
+                if (allowance < totalAmountWei) {
+                    setTxStatus({ status: 'preparing' }); // Logic could allow a specific "approving" state
+
+                    // Approve
+                    const approveHash = await writeContractAsync({
+                        address: selectedToken.address as `0x${string}`,
+                        abi: ERC20_ABI,
+                        functionName: 'approve',
+                        args: [contractAddress, totalAmountWei],
+                    });
+
+                    // Wait for approval
+                    setTxStatus({ status: 'pending' }); // "Pending Approval confirmation"
+                    await publicClient.waitForTransactionReceipt({ hash: approveHash });
+                }
+
+                // 2. MultiSend
+                setTxStatus({ status: 'pending' });
+                const hash = await writeContractAsync({
+                    address: contractAddress,
+                    abi: MULTISEND_ABI,
+                    functionName: 'multiSendToken',
+                    args: [
+                        selectedToken.address as `0x${string}`,
+                        recipientAddresses,
+                        amounts,
+                        totalAmountWei
+                    ],
+                });
+
+                setTxStatus({ status: 'success', hash });
             }
         } catch (error) {
             console.error('Transaction error:', error);
             setTxStatus({
                 status: 'error',
-                error: error instanceof Error ? error.message : 'Transaction failed',
+                error: error instanceof Error ? (error.message.includes('User rejected') ? 'Transaction rejected' : error.message) : 'Transaction failed',
             });
         }
     };
