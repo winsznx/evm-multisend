@@ -27,10 +27,6 @@ export const metadata: Metadata = {
     title: 'EVM MultiSend - Send Tokens to Multiple Addresses',
     description: 'Send ETH and ERC20 tokens to multiple addresses in one transaction across all EVM networks.',
   },
-  icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
-  },
 };
 
 export default function RootLayout({
