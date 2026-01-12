@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+*.lcov
 
 # next.js
 /.next/
@@ -46,7 +47,19 @@ next-env.d.ts
 /cache
 /typechain
 /typechain-types
+/deployments
 
 # Editor
 .idea
 .vscode
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+logs
+*.log
