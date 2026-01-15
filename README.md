@@ -62,3 +62,35 @@ The repository includes a Hardhat configuration for deploying the MultiSend smar
 ## Security
 
 Security is a primary focus of this application. The smart contracts have been implemented following best practices and include safeguards against common vulnerabilities. The frontend sanitizes all inputs and relies on established libraries for cryptographic operations. Access to the `.env` file containing sensitive keys is restricted via `.gitignore`.
+
+## Contract Addresses
+
+**Base Mainnet**
+`0xA574EC6E2B51B58eb339B7D5107598474BA14eC5`
+
+**Base Sepolia**
+`0x656bc95b9E2f713184129629C1c3dFbeB67aCc59`
+
+## Known Limitations
+
+- **Recipient Limit**: Transactions are currently limited to a maximum of 255 recipients to ensure gas limits are not exceeded.
+- **Batch Approval**: Currently, separate approvals are required for different tokens; batch approval is not yet supported.
+- **Bitcoin Support**: While architecturally designed, the UI implementation for Bitcoin PSBT construction is currently in development.
+
+## Documentation & Resources
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- [System Architecture](./docs/ARCHITECTURE.md)
+- [Deployment Guide](./docs/DEPLOYMENT.md)
+- [API Reference](./docs/API.md)
+- [Performance Optimization](./docs/PERFORMANCE.md)
+- [Troubleshooting](./docs/TROUBLESHOOTING.md)
+
+Project standards and logs:
+
+- [Security Policy](./SECURITY.md)
+- [Audit Report](./AUDIT_REPORT.md)
+- [Contributing Guidelines](./CONTRIBUTING.md)
+- [Changelog](./CHANGELOG.md)
+
